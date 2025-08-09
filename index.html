@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+    <title>אני מתגעגע ואוהב אותך </title>
+    <link rel="icon" type="image/x-icon" href="./images/hil.png">
+
+    <style>
+        :root {
+            --bg: #0b0510;
+            --glass: rgba(255,255,255,0.06);
+            --card: rgba(255,255,255,0.06);
+            --accent1: #ff6b9a;
+            --accent2: #ff3d6e;
+            --accent-contrast: #fff;
+            --progress-bg: rgba(255,255,255,0.12);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            margin: 0;
+            background: linear-gradient(180deg,#0b0510 0%, #26031a 100%);
+            color: var(--accent-contrast);
+            font-family: Inter,system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial;
+        }
+
+        .media-wrap {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        video {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: brightness(0.55) saturate(1.05);
+            z-index: -1;
+        }
+
+        .hearts {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+        }
+
+        .heart {
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            transform: translate(-50%,-50%) rotate(-45deg);
+            opacity: 0.06;
+            background: linear-gradient(90deg,var(--accent1),var(--accent2));
+            border-radius: 4px;
+        }
+
+            .heart:before, .heart:after {
+                content: '';
+                position: absolute;
+                background: inherit;
+                border-radius: 50%;
+                width: 18px;
+                height: 18px;
+            }
+
+            .heart:before {
+                top: -9px;
+                left: 0;
+            }
+
+            .heart:after {
+                left: 9px;
+                top: 0;
+            }
+
+        .card {
+            position: relative;
+            z-index: 3;
+            max-width: 92vw;
+            width: 520px;
+            margin: auto;
+            background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+            backdrop-filter: blur(6px);
+            border-radius: 16px;
+            padding: 18px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+            text-align: center;
+        }
+
+        .title {
+            font-size: 1rem;
+            opacity: 0.95;
+            margin-bottom: 6px;
+        }
+
+        .timer {
+            font-size: clamp(28px,7vw,54px);
+            font-weight: 800;
+            letter-spacing: 0.02em;
+        }
+
+        .progress-wrap {
+            margin-top: 14px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 14px;
+            background: var(--progress-bg);
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg,var(--accent1),var(--accent2));
+            transition: width 400ms linear;
+        }
+
+
+        .percent {
+            margin-top: 8px;
+            font-weight: 700;
+        }
+
+        .hint {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            margin-top: 12px;
+        }
+
+        .audio-toggle {
+            position: fixed;
+            right: 14px;
+            top: 14px;
+            z-index: 5;
+            background: linear-gradient(180deg,var(--accent1),var(--accent2));
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.45);
+            cursor: pointer;
+            font-size: 24px;
+            line-height: 1;
+            border: none;
+            color: #ff3d6e;
+        }
+
+        #trackName {
+            position: fixed;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255,255,255,0.15);
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 18px;
+            color: var(--accent-contrast);
+            filter: drop-shadow(0 0 6px var(--accent2));
+            user-select: none;
+            opacity: 1;
+            transition: transform 0.5s ease, opacity 0.5s ease;
+            z-index: 10;
+        }
+
+            #trackName.slide-out {
+                opacity: 0;
+                transform: translateX(-150%);
+            }
+
+            #trackName.slide-in {
+                opacity: 1;
+                transform: translateX(0);
+            }
+
+        @media (max-width:420px) {
+            .card {
+                padding: 12px;
+                border-radius: 12px;
+            }
+
+            .audio-toggle {
+                width: 42px;
+                height: 42px;
+                font-size: 20px;
+            }
+
+            #trackName {
+                font-size: 14px;
+                padding: 8px 16px;
+                top: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="media-wrap">
+        <video id="bgVideo" autoplay muted playsinline loop poster="poster.jpg">
+            <source src="video.mp4" type="video/mp4" />
+            <source src="video.webm" type="video/webm" />
+            Your browser does not support the video tag.
+        </video>
+
+        <div class="hearts" aria-hidden="true" id="hearts"></div>
+
+        <div class="card" role="region" aria-label="Countdown card">
+            <div class="title">טיימר עד שתחזרי כבר מתאילנד</div>
+            <div class="timer" id="countdown">00:00:00</div>
+
+            <div class="progress-wrap">
+                <div class="progress-bar" aria-hidden="true">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="percent" id="percentText">0%</div>
+            </div>
+
+            <div class="hint">תלחצי על הלב בשביל לשמוע קצת מוזיקה שלנו</div>
+            <div class="hint">לחיצה נוספת תעצור את השיר, וכל פעם שתיכנסי יהיה שיר אחר </div>
+
+        </div>
+
+        <button id="audioToggle" class="audio-toggle" aria-pressed="false" aria-label="Enable audio">❤️</button>
+
+        <div id="trackName" aria-live="polite" aria-atomic="true"></div>
+    </div>
+
+    <audio id="bgAudio" preload="auto"></audio>
+
+    <script>
+        const targetUTCms = Date.UTC(2025, 7, 24, 4, 0, 0); // Aug 24 2025 07:00 (GMT+3) is 04:00 UTC
+        const startUTCms = Date.UTC(2025, 7, 13, 16, 30, 0); // Aug 9 2025 19:30 (IDT) is 16:30 UTC
+
+        const audioTracks = [
+            { src: 'track1.mp3', name: 'עוד פעם - מוניקה סקס' },
+            { src: 'track2.mp3', name: 'הכוכבים דולקים על אש קטנה - משינה' },
+            { src: 'track3.mp3', name: 'השמלה ממדריד - מוניקה סקס' },
+            { src: 'track4.mp3', name: 'פרפר - מוניקה סקס' }
+        ];
+
+        const countdownEl = document.getElementById('countdown');
+        const progressFill = document.getElementById('progressFill');
+        const percentText = document.getElementById('percentText');
+        const audioEl = document.getElementById('bgAudio');
+        const audioToggle = document.getElementById('audioToggle');
+        const trackNameEl = document.getElementById('trackName');
+        const hearts = document.getElementById('hearts');
+
+        let currentIndex = 0;
+
+        // Animate track name: slide out old, then slide in new
+        function animateTrackName(newName) {
+            trackNameEl.classList.add('slide-out');
+            setTimeout(() => {
+                trackNameEl.textContent = newName;
+                trackNameEl.classList.remove('slide-out');
+                trackNameEl.classList.add('slide-in');
+            }, 500);
+        }
+        trackNameEl.addEventListener('transitionend', () => {
+            if (trackNameEl.classList.contains('slide-in')) {
+                trackNameEl.classList.remove('slide-in');
+            }
+        });
+
+        function getRandomIndex() {
+            return Math.floor(Math.random() * audioTracks.length);
+        }
+
+        function setTrack(index) {
+            currentIndex = index;
+            audioEl.src = audioTracks[currentIndex].src;
+            animateTrackName(audioTracks[currentIndex].name);
+        }
+
+        audioEl.addEventListener('ended', () => {
+            let nextIndex;
+            do {
+                nextIndex = getRandomIndex();
+            } while (nextIndex === currentIndex && audioTracks.length > 1);
+            setTrack(nextIndex);
+            audioEl.play();
+        });
+
+        function pad(n) {
+            return String(n).padStart(2, '0');
+        }
+
+        function update() {
+            const now = Date.now();
+            let diff = targetUTCms - now;
+            const totalDuration = targetUTCms - startUTCms;
+
+            if (diff <= 0) {
+                countdownEl.textContent = '00:00:00';
+                progressFill.style.width = '100%';
+                percentText.textContent = '100%';
+                clearInterval(interval);
+                return;
+            }
+
+            const totalSeconds = Math.floor(diff / 1000);
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+            countdownEl.textContent = `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+
+            // Calculate progress percentage based on the full duration
+            const elapsed = now - startUTCms;
+            let pct = (elapsed / totalDuration) * 100;
+            if (pct < 0) pct = 0;
+
+            progressFill.style.width = pct + '%';
+            percentText.textContent = pct.toFixed(2) + '%';
+        }
+
+
+        // On page load, pick random track and set it
+        currentIndex = getRandomIndex();
+        setTrack(currentIndex);
+
+        update();
+        const interval = setInterval(update, 1000);
+
+        audioToggle.addEventListener('click', async () => {
+            try {
+                if (audioEl.paused) {
+                    await audioEl.play();
+                    audioToggle.setAttribute('aria-pressed', 'true');
+                    audioToggle.style.boxShadow = '0 8px 28px rgba(255,99,150,0.25)';
+                } else {
+                    audioEl.pause();
+                    audioToggle.setAttribute('aria-pressed', 'false');
+                    audioToggle.style.boxShadow = 'none';
+                }
+            } catch (e) {
+                console.warn('audio play failed', e);
+            }
+        });
+
+        function createHearts(n = 10) {
+            for (let i = 0; i < n; i++) {
+                const el = document.createElement('div');
+                el.className = 'heart';
+                el.style.left = Math.random() * 100 + '%';
+                el.style.top = Math.random() * 100 + '%';
+                const scale = 0.6 + Math.random() * 1.4;
+                el.style.transform += ' scale(' + scale + ')';
+                el.style.opacity = (0.02 + Math.random() * 0.08).toString();
+                hearts.appendChild(el);
+            }
+        }
+        createHearts(18);
+
+        audioToggle.addEventListener('keydown', e => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                audioToggle.click();
+            }
+        });
+    </script>
+
+</body>
+</html>
